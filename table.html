@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="styles.css" />
+
+    <title>Publiskā datubāze</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  </head>
+  <body>
+    <div class="db-config">
+      <a href="index.html" id="back-link" style="margin-top: 3rem"
+        ><strong style="margin-right: 1rem">←</strong>Atpakaļ uz sākumlapu</a
+      >
+      <h1 style="color: rgba(0, 133, 248, 1); margin-top: 3rem">
+        Publiskā datubāze
+      </h1>
+      <p style="color: #303030; margin-top: 3rem">
+        Šajā datubāzē Tu vari apskatīt pieejamās vielas un aprīkojumu
+      </p>
+      <div class="config-search">
+        <input type="search" placeholder="Meklēt" />
+        <button class="show-btn-solid" id="show-all">Rādīt visu</button>
+        <button class="show-btn-transparent" id="show-vielas">
+          Rādīt vielas
+        </button>
+        <button class="show-btn-transparent" id="show-inventars">
+          Rādīt aprīkojumu
+        </button>
+      </div>
+    </div>
+    <hr />
+    <div style="width: 100%; overflow: scroll; max-height: 720px">
+      <table id="data-table">
+        <tr class="header">
+          <th>ID</th>
+          <th>Nosaukums</th>
+          <th>Tips</th>
+          <th>Apakštips</th>
+          <th>Skaits</th>
+          <th>Svars</th>
+          <th>Komentāri</th>
+        </tr>
+      </table>
+    </div>
+
+    <button id="error-btn">Ziņot par kļūdu</button>
+    <script>
+      let vielas = [];
+      let inventars = [];
+
+      Promise.all([
+        fetch("vielas.json").then((response) => response.json()),
+        fetch("inventars.json").then((response) => response.json()),
+      ]).then(([vielasData, inventarsData]) => {
+        vielas = vielasData;
+        inventars = inventarsData;
+        displayData([...vielas, ...inventars]);
+      });
+
+      function displayData(data) {
+        const table = document.querySelector("#data-table");
+        let output = `
+        <tr class="header">
+          <th>ID</th>
+          <th>Nosaukums</th>
+          <th>Tips</th>
+          <th>Apakštips</th>
+          <th>Skaits</th>
+          <th>Svars</th>
+          <th>Komentāri</th>
+        </tr>`;
+        data.forEach((item) => {
+          output += `
+          <tr>
+            <td>${item.id}</td>
+            <td>${item.nosaukums}</td>
+            <td>${item.tips}</td>
+            <td>${item.apakstips}</td>
+            <td>${item.skaits}</td>
+            <td>${item.daudzums + item.mervienibas || ""}</td>
+            <td>${item.komentari}</td>
+          </tr>`;
+        });
+        table.innerHTML = output;
+      }
+
+      document.getElementById("show-all").addEventListener("click", () => {
+        displayData([...vielas, ...inventars]);
+      });
+
+      document.getElementById("show-vielas").addEventListener("click", () => {
+        displayData(vielas);
+      });
+
+      document
+        .getElementById("show-inventars")
+        .addEventListener("click", () => {
+          displayData(inventars);
+        });
+    </script>
+  </body>
+</html>
